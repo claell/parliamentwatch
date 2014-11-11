@@ -33,7 +33,6 @@ dependencies[] = menu_block
 dependencies[] = number
 dependencies[] = options
 dependencies[] = overlay
-dependencies[] = page_title
 dependencies[] = php
 dependencies[] = pw_committees
 dependencies[] = pw_globals

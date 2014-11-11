@@ -24,6 +24,7 @@ function pw_committees_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Committees';
   $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = 'mehr';
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
@@ -31,11 +32,15 @@ function pw_committees_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['submit_button'] = 'iarratas a dhéanamh';
   $handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Zurücksetzen';
   $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = 'Sortieren nach';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Aufsteigend';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Absteigend';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '11';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Elemente pro Seite';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- Alle -';
   $handler->display->display_options['pager']['options']['tags']['first'] = 'first';
   $handler->display->display_options['pager']['options']['tags']['previous'] = 'zurück';
   $handler->display->display_options['pager']['options']['tags']['next'] = 'weiter';
@@ -121,7 +126,7 @@ print i18n_string("taxonomy:term:".$data->_field_data[\'tid\'][\'entity\']->tid.
   $handler->display->display_options['fields']['tid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['tid']['separator'] = '';
-  /* Feld: Global: Custom text */
+  /* Feld: Global: Benutzerdefinierter Text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
@@ -134,7 +139,7 @@ print i18n_string("taxonomy:term:".$data->_field_data[\'tid\'][\'entity\']->tid.
   $handler->display->display_options['fields']['nothing']['element_class'] = 'float-right link-committees';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['nothing']['element_default_classes'] = FALSE;
-  /* Contextual filter: Feld: Parliament (field_parliament) */
+  /* Kontextfilter: Feld: Parliament (field_parliament) */
   $handler->display->display_options['arguments']['field_parliament_tid']['id'] = 'field_parliament_tid';
   $handler->display->display_options['arguments']['field_parliament_tid']['table'] = 'field_data_field_parliament';
   $handler->display->display_options['arguments']['field_parliament_tid']['field'] = 'field_parliament_tid';
@@ -150,7 +155,7 @@ print i18n_string("taxonomy:term:".$data->_field_data[\'tid\'][\'entity\']->tid.
     'parliaments' => 'parliaments',
   );
   $handler->display->display_options['arguments']['field_parliament_tid']['validate_options']['type'] = 'convert';
-  /* Filter criterion: Taxonomie-Vokabular: Maschinenlesbarer Name */
+  /* Filterkriterium: Taxonomie-Vokabular: Maschinenlesbarer Name */
   $handler->display->display_options['filters']['machine_name']['id'] = 'machine_name';
   $handler->display->display_options['filters']['machine_name']['table'] = 'taxonomy_vocabulary';
   $handler->display->display_options['filters']['machine_name']['field'] = 'machine_name';

@@ -1122,7 +1122,7 @@ drupal_add_js(drupal_get_path(\'theme\',\'parliamentwatch\').\'/js/hidefilter.js
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Ganze Frage lesen';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Link kopieren';
   $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['nothing']['alter']['path'] = 'node/[nid]';
   $handler->display->display_options['fields']['nothing']['alter']['absolute'] = TRUE;
