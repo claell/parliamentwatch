@@ -934,7 +934,7 @@ function pw_globals_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'scroll_to_top_position';
-  $strongarm->value = '3';
+  $strongarm->value = '1';
   $export['scroll_to_top_position'] = $strongarm;
 
   $strongarm = new stdClass();
