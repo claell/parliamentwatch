@@ -713,6 +713,7 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 0,
             'html_mail' => 0,
@@ -724,6 +725,9 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
@@ -794,6 +798,7 @@ function pw_profiles_field_default_fields() {
           'premise' => '',
           'postal_code' => '',
           'locality' => '',
+          'administrative_area' => '',
           'country' => 'DE',
         ),
       ),
@@ -862,8 +867,8 @@ function pw_profiles_field_default_fields() {
             'address' => 'address',
             'address-hide-country' => 0,
             'organisation' => 0,
-            'name-full' => 0,
             'name-oneline' => 0,
+            'name-full' => 0,
           ),
           'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
         ),
@@ -1183,6 +1188,7 @@ function pw_profiles_field_default_fields() {
           'input_format' => 'd.m.Y - H:i:s',
           'input_format_custom' => '',
           'label_position' => 'above',
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
           'text_parts' => array(),
           'year_range' => '-70:+0',
         ),
@@ -1508,8 +1514,7 @@ function pw_profiles_field_default_fields() {
         'active' => 1,
         'module' => 'options',
         'settings' => array(
-          'autocomplete_path' => 'taxonomy/autocomplete',
-          'size' => 60,
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
         ),
         'type' => 'options_buttons',
         'weight' => '56',
@@ -2280,6 +2285,7 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
             'html_mail' => 0,
@@ -2291,6 +2297,9 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
@@ -2663,6 +2672,7 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
             'html_mail' => 0,
@@ -2674,6 +2684,9 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
@@ -3259,8 +3272,10 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
+            'html_mail' => 0,
             'managed_content' => 'managed_content',
             'php_code' => 'php_code',
             'plain_text' => 'plain_text',
@@ -3269,11 +3284,17 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
               'full_html' => array(
                 'weight' => '-8',
+              ),
+              'html_mail' => array(
+                'weight' => '0',
               ),
               'managed_content' => array(
                 'weight' => '-10',
@@ -3298,6 +3319,8 @@ function pw_profiles_field_default_fields() {
         'active' => 1,
         'module' => 'text',
         'settings' => array(
+          'maxlength_js' => 0,
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
           'size' => '60',
         ),
         'type' => 'text_textfield',
@@ -3526,7 +3549,9 @@ function pw_profiles_field_default_fields() {
       'widget' => array(
         'active' => 1,
         'module' => 'options',
-        'settings' => array(),
+        'settings' => array(
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        ),
         'type' => 'options_buttons',
         'weight' => '7',
       ),
@@ -3667,7 +3692,9 @@ function pw_profiles_field_default_fields() {
       'widget' => array(
         'active' => 1,
         'module' => 'options',
-        'settings' => array(),
+        'settings' => array(
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        ),
         'type' => 'options_buttons',
         'weight' => '6',
       ),
@@ -3764,6 +3791,7 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
             'html_mail' => 0,
@@ -3775,6 +3803,9 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
@@ -4588,6 +4619,7 @@ function pw_profiles_field_default_fields() {
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
             'html_mail' => 0,
@@ -4599,6 +4631,9 @@ function pw_profiles_field_default_fields() {
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
@@ -5196,6 +5231,7 @@ $entity_field[0][\'value\'] = $result;',
       'settings' => array(
         'better_formats' => array(
           'allowed_formats' => array(
+            'copyright' => 0,
             'filtered_html' => 'filtered_html',
             'full_html' => 'full_html',
             'html_mail' => 'html_mail',
@@ -5207,6 +5243,9 @@ $entity_field[0][\'value\'] = $result;',
           'default_order_toggle' => 0,
           'default_order_wrapper' => array(
             'formats' => array(
+              'copyright' => array(
+                'weight' => '0',
+              ),
               'filtered_html' => array(
                 'weight' => '-9',
               ),
