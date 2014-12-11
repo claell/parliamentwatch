@@ -204,6 +204,7 @@ features[menu_custom][] = menu-calendar-options-menu
 features[menu_links][] = menu-calendar-options-menu:node/add/calendar-entry
 features[node][] = calendar_entry
 features[rules_config][] = rules_submitting_question
+features[schemaorg][] = node-calendar_entry
 features[schemaorg][] = user-user
 features[taxonomy][] = list_position
 features[taxonomy][] = pw_profile_roles_for_view_mode_switch

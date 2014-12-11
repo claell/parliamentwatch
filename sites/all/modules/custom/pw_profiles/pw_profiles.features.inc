@@ -56,6 +56,82 @@ function pw_profiles_node_info() {
 function pw_profiles_rdf_default_mappings() {
   $schemaorg = array();
 
+  // Exported RDF mapping: calendar_entry
+  $schemaorg['node']['calendar_entry'] = array(
+    'rdftype' => array(
+      0 => 'schema:Event',
+      1 => 'sioc:Item',
+      2 => 'foaf:Document',
+    ),
+    'title' => array(
+      'predicates' => array(
+        0 => 'schema:name',
+      ),
+    ),
+    'created' => array(
+      'predicates' => array(
+        0 => 'dc:date',
+        1 => 'dc:created',
+      ),
+      'datatype' => 'xsd:dateTime',
+      'callback' => 'date_iso8601',
+    ),
+    'changed' => array(
+      'predicates' => array(
+        0 => 'dc:modified',
+      ),
+      'datatype' => 'xsd:dateTime',
+      'callback' => 'date_iso8601',
+    ),
+    'body' => array(
+      'predicates' => array(
+        0 => 'schema:summary',
+        1 => 'schema:description',
+        2 => 'content:encoded',
+      ),
+    ),
+    'uid' => array(
+      'predicates' => array(
+        0 => 'sioc:has_creator',
+      ),
+      'type' => 'rel',
+    ),
+    'name' => array(
+      'predicates' => array(
+        0 => 'schema:name',
+      ),
+    ),
+    'comment_count' => array(
+      'predicates' => array(
+        0 => 'sioc:num_replies',
+      ),
+      'datatype' => 'xsd:integer',
+    ),
+    'last_activity' => array(
+      'predicates' => array(
+        0 => 'sioc:last_activity_date',
+      ),
+      'datatype' => 'xsd:dateTime',
+      'callback' => 'date_iso8601',
+    ),
+    'field_calendar_entry_address' => array(
+      'predicates' => array(
+        0 => 'schema:address',
+      ),
+    ),
+    'url' => array(
+      'predicates' => array(
+        0 => 'schema:url',
+      ),
+      'type' => 'rel',
+    ),
+    'field_calendar_entry_date' => array(
+      'predicates' => array(
+        0 => 'schema:startDate',
+      ),
+    ),
+  );
+
   // Exported RDF mapping: user
   $schemaorg['user']['user'] = array(
     'rdftype' => array(
