@@ -1,0 +1,130 @@
+<?php
+
+/**
+ * @file pw_parser_update.module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function pw_parser_update_menu() {
+  $items = array();
+  $items['admin/config/pw/parser'] = array(
+    'title' => 'PW Parser',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pw_parser_update_form'),
+    'access arguments' => array('administer users'),
+    );
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ */
+function pw_parser_update_form($form, &$form_state) {
+
+  $params = drupal_get_query_parameters();
+
+  if(!isset($params['parser_fields'])){
+    drupal_set_message('Parameter parser_fields not found', 'error');
+    return FALSE;
+  }
+  if(!isset($params['entity_type']) || !isset($params['entity_id'])){
+    drupal_set_message('Parameter entity_type and/or entity_id not found', 'error');
+    return FALSE;
+  }
+
+  // load entity
+  if(!$entities = pw_parser_update_load_entities_by_url()){
+    drupal_set_message('Could not load entity with id '.$params['entity_id'], 'error');
+    return FALSE;
+  }
+  list(, , $bundle) = entity_extract_ids($params['entity_type'], $entities);
+  $entity = array_pop($entities);
+
+  // set link to entity
+  $form['entity_link'] = array(
+    '#type' => 'item',
+    '#title' => t('Entity'),
+    '#markup' => l(t('open entity'), $params['entity_type'].'/'.$params['entity_id'], array(
+      'absolute' => TRUE,
+      'attributes' => array (
+        'target' => '_blank',
+        )
+      )),
+    );
+
+  foreach($params['parser_fields'] as $parser_field => $parser_value){
+
+    $field = field_info_field($parser_field);;
+    if(field_access('edit', $field, $params['entity_type'], $entity)){
+
+      $bundle = $params['entity_type'] == 'user'?'user':'node';
+
+      // current value in drupal
+      $form['current_'.$parser_field] = array(
+        '#type' => 'item',
+        '#title' => t('Current value'),
+        '#markup' => $entity->{$parser_field}['und'][0]['value'],
+        );
+
+      // attach field
+      pw_parser_update_field_attach_form($parser_field, $params['entity_type'], $bundle, $entity, $form, $form_state, LANGUAGE_NONE);
+      $form[$parser_field]['und'][0]['value']['#default_value'] = $parser_value;
+      unset($form[$parser_field]['#weight']);
+    }
+    else{
+      drupal_set_message('You dont have access to '.$parser_field, 'error');
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Apply'),
+    );
+
+  return $form;
+
+}
+
+function pw_parser_update_load_entities_by_url(){
+  $params = drupal_get_query_parameters();
+  return entity_load($params['entity_type'], array($params['entity_id']));
+}
+
+function pw_parser_update_field_attach_form($field_name, $entity_type, $bundle, $entity, &$form, &$form_state, $langcode = NULL) {
+
+  // Set #parents to 'top-level' if it doesn't exist.
+  $form += array('#parents' => array());
+
+  // If no language is provided use the default site language.
+  $options = array(
+    'language' => field_valid_language($langcode),
+    'default' => TRUE,
+    'weight' => -1,
+    );
+
+  // Append to the form
+  ctools_include('fields');
+  $field_instance = field_info_instance($entity_type, $field_name, $bundle);
+  $form += (array) ctools_field_invoke_field($field_instance, 'form', $entity_type, '', $form, $form_state, $options);
+}
+
+
+
+function pw_parser_update_form_submit($form, &$form_state){
+  if(!$entities = pw_parser_update_load_entities_by_url()){
+    drupal_set_message('Could not load entity with id '.$params['entity_id'], 'error');
+    return FALSE;
+  }
+  $entity = array_pop($entities);
+  form_state_values_clean($form_state);
+  switch(drupal_get_query_parameters()['entity_type']){
+    case 'user':
+    user_save($entity, $form_state['values']);
+    break;
+    case 'node':
+    node_save($entity, $form_state['values']);
+    break;
+  }
+}
