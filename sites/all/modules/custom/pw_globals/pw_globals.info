@@ -5,7 +5,6 @@ package = Features
 php = 5.2.4
 version = 7.x-1.0-20160105
 project = pw_globals
-dependencies[] = admin_menu
 dependencies[] = admin_views
 dependencies[] = ajax_comments
 dependencies[] = antispam
