@@ -227,11 +227,14 @@ function pw_profiles_views_query_alter(&$view, &$query) {
     // query for all vids of this parliament / role and reduce result to MAX(vid) per uid
     $parliament = _pw_get_current_parliament_term();
     $user_role = arg(2) == 'candidates'?'candidate':'deputy';
-    $subquery = db_select('user_archive_cache');
-    $subquery->addExpression('MAX(vid)', 'vid');
-    $subquery->condition('parliament_name', $parliament->name);
-    $subquery->condition('user_role', $user_role);
-    $subquery->groupBy('uid');
+    $subquery = db_select('user_archive_cache', 'uac');
+    _pw_uac_add_conditions($subquery, array(
+      'parliament' => $parliament->name,
+      'roles' => $user_role,
+      'date' => date('Y-m-d'),
+      )
+    );
+    $subquery->addField('uac', 'vid');
     $result_vids = $subquery->execute()->fetchCol();
 
     // add vids as condition to views query

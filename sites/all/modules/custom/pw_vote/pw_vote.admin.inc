@@ -9,37 +9,37 @@
 /**
  * Form builder.
  */
-function pw_vote_generate_votes_form($form, &$form_state) {
+function pw_vote_generate_votes_form($form, &$form_state){
 
   // build select box
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', array('pw_petition', 'poll'))
-    ->propertyCondition('status', NODE_PUBLISHED);
+  ->entityCondition('bundle', array('pw_petition', 'poll'))
+  ->propertyCondition('status', NODE_PUBLISHED);
   $result = $query->execute();
   $options = array();
-  if (isset($result['node'])) {
+  if (isset($result['node'])){
     $nodes = node_load_multiple(array_keys($result['node']));
-    foreach ($nodes as $nid => $node) {
+    foreach ($nodes as $nid => $node){
       $options[$nid] = $node->title . ' (' . $node->type . ')';
     }
   }
   $form['pw_vote_admin'] = array(
     '#type' => 'select',
-    '#title' => t('Content, to generate votes for'),
+    '#title' => t('Generate votes for'),
     '#options' => $options,
     '#default_value' => variable_get('pw_vote_generate_votes_nid'),
     '#required' => TRUE,
-  );
+    );
 
   // add default voting behavior
   $voc = taxonomy_vocabulary_machine_name_load('votes');
   $terms = taxonomy_term_load_multiple(array(), array('vid' => $voc->vid));
   $options = array('random' => t('By random'));
   $default_tid = 'random';
-  foreach ($terms as $tid => $term) {
+  foreach ($terms as $tid => $term){
     $options[$tid] = $term->name;
-    if($term->name == 'no-show') {
+    if($term->name == 'no-show'){
       $default_tid = $tid;
     }
   }
@@ -49,18 +49,18 @@ function pw_vote_generate_votes_form($form, &$form_state) {
     '#options' => $options,
     '#default_value' => $default_tid,
     '#required' => TRUE,
-  );
+    );
 
   $form['pw_vote_admin_delete_existing'] = array(
     '#type' => 'checkbox',
     '#title' => t('Delete all votes for this content before generate new ones'),
-  );
+    );
 
   // add submit button
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Generate Votes',
-  );
+    );
 
   // add custom validation
   $form['#validate'][] = 'pw_vote_admin_validate';
@@ -74,21 +74,29 @@ function pw_vote_generate_votes_form($form, &$form_state) {
 /**
  * Form validate handler.
  */
-function pw_vote_admin_validate($form, &$form_state) {
+function pw_vote_admin_validate($form, &$form_state){
 
   // check if yes / no in vocabulary votes exists
   $voc = taxonomy_vocabulary_machine_name_load('votes');
   $terms = taxonomy_term_load_multiple(array(), array('vid' => $voc->vid));
   $vote_tids = array_keys($terms);
-  if (sizeof($vote_tids) == 0) {
+  if (sizeof($vote_tids) == 0){
     form_set_error('error', 'No items found in taxonomy votes.');
+  }
+
+  // check if decision date for petition or poll is present
+  $content_nid = $form['pw_vote_admin']['#value'];
+  $node = node_load($content_nid);
+  $w_node = entity_metadata_wrapper('node', $node);
+  if((!isset($w_node->field_petition_end_date) || empty($w_node->field_petition_end_date->value())) && (!isset($w_node->field_poll_date) || empty($w_node->field_poll_date->value()))){
+    form_set_error('error', 'No decision date was found.');
   }
 }
 
 /**
  * Form submit handler.
  */
-function pw_vote_admin_submit($form, &$form_state) {
+function pw_vote_admin_submit($form, &$form_state){
 
   global $user;
 
@@ -100,24 +108,24 @@ function pw_vote_admin_submit($form, &$form_state) {
   // wrap node
   $w_node = entity_metadata_wrapper('node', $node);
 
-  // parliament
+  // selected parliament
   $parliament = $w_node->field_parliament->value();
 
-  // load yes/no etc
-  if($form['pw_vote_admin_default_vote']['#value'] == 'random') {
+  // load all yes, no ... terms
+  if($form['pw_vote_admin_default_vote']['#value'] == 'random'){
     $voc = taxonomy_vocabulary_machine_name_load('votes');
     $terms = taxonomy_term_load_multiple(array(), array('vid' => $voc->vid));
     $vote_tids = array_keys($terms);
   }
 
-  // delete votes on this node
-  if($form['pw_vote_admin_delete_existing']['#value'] == 1) {
+  // delete votes on this node if option checked
+  if($form['pw_vote_admin_delete_existing']['#value'] == 1){
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'vote')
-      ->fieldCondition('field_vote_node', 'target_id', $content_nid);
+    ->entityCondition('bundle', 'vote')
+    ->fieldCondition('field_vote_node', 'target_id', $content_nid);
     $result = $query->execute();
-    if ($result['node']) {
+    if($result['node']){
       $nids = array_keys($result['node']);
       node_delete_multiple($nids);
     }
@@ -129,12 +137,11 @@ function pw_vote_admin_submit($form, &$form_state) {
     // load all existing votes on node
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'vote')
-      ->fieldCondition('field_vote_node', 'target_id', $content_nid);
+    ->entityCondition('bundle', 'vote')
+    ->fieldCondition('field_vote_node', 'target_id', $content_nid);
     $result = $query->execute();
 
-    if (isset($result['node'])) {
-
+    if(isset($result['node'])){
 
       $nodes = node_load_multiple(array_keys($result['node']));
       $users = array();
@@ -170,23 +177,40 @@ function pw_vote_admin_submit($form, &$form_state) {
     }
   }
 
-  // retrieve all deputies of related parliament
-  $deputies = db_query("SELECT uac.uid FROM user_archive_cache uac WHERE uac.user_role = 'deputy' AND uac.parliament_name = :name", array(':name' => $w_node->field_parliament->label()))->fetchCol();
+  // decision date
+  if(isset($w_node->field_petition_end_date)){
+    $decision_date = date('Y-m-d', $w_node->field_petition_end_date->value());
+  }
+  elseif(isset($w_node->field_poll_date)){
+    $decision_date = date('Y-m-d', $w_node->field_poll_date->value());
+  }
+
+  // retrieve deputies
+  $query = db_select('user_archive_cache', 'uac');
+  $query->fields('uac', array('uid'));
+  _pw_uac_add_conditions($query, array(
+    'parliament' => $w_node->field_parliament->label(),
+    'roles' => 'deputy',
+    'date' => $decision_date,
+    )
+  );
+  $result_deputies = $query->execute()->fetchCol();
 
   // create vote for each deputy
   $count_generated = 0;
-  foreach ($deputies as $uid) {
+  foreach ($result_deputies as $uid){
 
+    // check if deputy already voted
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'vote')
-      ->fieldCondition('field_vote_node', 'target_id', $content_nid)
-      ->fieldCondition('field_vote_user', 'target_id', $uid);
+    ->entityCondition('bundle', 'vote')
+    ->fieldCondition('field_vote_node', 'target_id', $content_nid)
+    ->fieldCondition('field_vote_user', 'target_id', $uid);
     $result = $query->count()->execute();
 
-    if($result == 0) {
+    if($result == 0){
 
-      // user fields
+      // load user
       $deputy = user_load($uid);
 
       if($deputy){
@@ -206,7 +230,7 @@ function pw_vote_admin_submit($form, &$form_state) {
         $vote->body[$vote->language][]['format']= 'plain_text';
 
         // voting behavior
-        if($form['pw_vote_admin_default_vote']['#value'] == 'random') {
+        if($form['pw_vote_admin_default_vote']['#value'] == 'random'){
           $vote->field_vote[$vote->language][]['tid'] = $vote_tids[rand(0, sizeof($vote_tids) - 1)];
         }
         else {

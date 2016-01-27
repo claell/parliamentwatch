@@ -17,11 +17,13 @@
 function parliamentwatch_preprocess_node(&$variables) {
   if ($variables['type'] == 'pw_petition') {
     $node = $variables['node'];
+
+    // default theme suggestion
+    $variables['theme_hook_suggestions'][] = 'node__' . $node->type . '__' . $variables['view_mode'];
+
     $petition_status = field_get_items('node', $node, 'field_petition_status');
-
-    if (!empty($petition_status)) {
+    if (!empty($petition_status) && $petition_status[0]['value'] != "open_for_signings") {
       $variables['theme_hook_suggestions'][] = 'node__' . $node->type . '__' . $variables['view_mode'] . '__' . $petition_status[0]['value'];
-
 
       if ($petition_status[0]['value'] == "collecting_donations"){
         // Load donation form
@@ -46,7 +48,7 @@ function parliamentwatch_preprocess_node(&$variables) {
       }
     }
     else {
-      $variables['theme_hook_suggestions'][] = 'node__' . $node->type . '__' . $variables['view_mode'];
+
       // Load signing form
       /* This rather complicated way was chosen because the normal module_invoke/
       render method produces only the pure block content (form in this case) and
@@ -58,7 +60,7 @@ function parliamentwatch_preprocess_node(&$variables) {
     }
 
     // Due to our complicated block modification above, we need to re-render the block.
-    if (empty($petition_status) || $petition_status[0]['value'] == "collecting_donations"){
+    if (empty($petition_status) || $petition_status[0]['value'] == "collecting_donations" || $petition_status[0]['value'] == "open_for_signings"){
       $variables["main_node_form"] = drupal_render(_block_get_renderable_array($rendered_block));
     }
     switch ($variables['field_petition_partner'][0]['value']) {
@@ -78,7 +80,7 @@ function parliamentwatch_preprocess_node(&$variables) {
           'continue' => $variables['field_petition_external_url'][0]['url'],
           )
         ));
-      if (empty($petition_status)) {
+      if (empty($petition_status) || $petition_status[0]['value'] == "open_for_signings") {
           // If the petition is run by an external service, all links from
           // the node need to point to that URL. To avoid having to access
           // the nitty-gritty of all elements in use, we simply override

@@ -3,5 +3,5 @@ description = creates/manages a table in the Drupal database to archive user dat
 core = 7.x
 package = Parliamentwatch
 php = 5.2.4
-version = 7.x-1.0-20150910
+version = 7.x-1.0-20151228
 project = pw_userarchives

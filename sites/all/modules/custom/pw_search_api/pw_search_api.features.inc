@@ -85,6 +85,7 @@ function pw_search_api_default_search_api_index() {
         "field_pw_kc_thesis_reference" : { "type" : "integer", "entity_type" : "node" },
         "field_pw_kc_user_reference" : { "type" : "integer", "entity_type" : "user" },
         "field_pw_kc_vote_reference" : { "type" : "integer", "entity_type" : "taxonomy_term" },
+        "field_search_sort_date" : { "type" : "date" },
         "field_sectors" : { "type" : "list\\u003Cinteger\\u003E", "entity_type" : "taxonomy_term" },
         "field_share_sum" : { "type" : "integer" },
         "field_sidejob_classification" : { "type" : "text" },

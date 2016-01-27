@@ -13,7 +13,7 @@ function pw_menu_default_fe_block_settings() {
   $export['version'] = '2.0';
 
   $export['tb_megamenu-menu-main-menu-de'] = array(
-    'cache' => 1,
+    'cache' => -1,
     'css_class' => 'desktop-only small',
     'custom' => '0',
     'delta' => 'menu-main-menu-de',

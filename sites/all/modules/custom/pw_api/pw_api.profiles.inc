@@ -65,12 +65,14 @@ function pw_api_profiles($parliament) {
   // query for users
   $pathinfo = pathinfo(current_path());
   $user_role =  $pathinfo['filename'] == 'deputies'?'deputy':'candidate';
-  $query = db_select('user_archive_cache', 'ua')
-    ->fields('ua', array('uid', 'vid'))
-    ->condition('parliament_name', $parliament)
-    ->condition('user_role', $user_role)
-    ->having('MAX(vid)')
-    ->groupBy('uid');
+  $query = db_select('user_archive_cache', 'uac');
+  $query->fields('uac', array('uid', 'vid'));
+  _pw_uac_add_conditions($query, array(
+    'parliament' => $parliament,
+    'roles' => $user_role,
+    'date' => date('Y-m-d'),
+    )
+  );
   $result = $query->execute()->fetchAll();
 
   $profiles = array();
@@ -159,6 +161,8 @@ function pw_api_user_to_array($user) {
     $profile['parliament'] = array();
     $profile['parliament']['name'] = $w_user->field_user_parliament->label();
     $profile['parliament']['uuid'] = $w_user->field_user_parliament->uuid->value();
+    $profile['parliament']['joined'] = format_date($w_user->field_user_joined->value(), 'custom', 'Y-m-d');
+    $profile['parliament']['retired'] = format_date($w_user->field_user_retired->value(), 'custom', 'Y-m-d');
 
     // add constituency
     $profile['constituency'] = array();
@@ -185,11 +189,11 @@ function pw_api_user_to_array($user) {
     // add votes
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'vote')
-      ->fieldCondition('field_parliament', 'tid', $w_user->field_user_parliament->tid->value())
-      ->fieldCondition('field_vote_user', 'target_id', $w_user->uid->value())
-      ->propertyCondition('status', NODE_PUBLISHED)
-      ->propertyOrderBy('created', 'DESC');
+    ->entityCondition('bundle', 'vote')
+    ->fieldCondition('field_parliament', 'tid', $w_user->field_user_parliament->tid->value())
+    ->fieldCondition('field_vote_user', 'target_id', $w_user->uid->value())
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->propertyOrderBy('created', 'DESC');
     $result = $query->execute();
 
     $profile['votes'] = array();
@@ -269,11 +273,11 @@ function pw_api_user_to_array($user) {
     // add dialogues
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'dialogue')
-      ->fieldCondition('field_parliament', 'tid', $w_user->field_user_parliament->tid->value())
-      ->fieldCondition('field_dialogue_recipient', 'target_id', $w_user->uid->value())
-      ->propertyCondition('status', NODE_PUBLISHED)
-      ->propertyOrderBy('created', 'DESC');
+    ->entityCondition('bundle', 'dialogue')
+    ->fieldCondition('field_parliament', 'tid', $w_user->field_user_parliament->tid->value())
+    ->fieldCondition('field_dialogue_recipient', 'target_id', $w_user->uid->value())
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->propertyOrderBy('created', 'DESC');
     $result = $query->execute();
 
     if(isset($result['node'])){

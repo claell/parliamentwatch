@@ -282,11 +282,11 @@ Alle|Ganze Plattform durchsuchen
   $handler->display->display_options['sorts']['politician_index_search_api_url']['id'] = 'politician_index_search_api_url';
   $handler->display->display_options['sorts']['politician_index_search_api_url']['table'] = 'search_api_multi';
   $handler->display->display_options['sorts']['politician_index_search_api_url']['field'] = 'politician_index_search_api_url';
-  /* Sortierkriterien: Main Index: Erstellungsdatum (indexed) */
-  $handler->display->display_options['sorts']['main_index_created']['id'] = 'main_index_created';
-  $handler->display->display_options['sorts']['main_index_created']['table'] = 'search_api_multi';
-  $handler->display->display_options['sorts']['main_index_created']['field'] = 'main_index_created';
-  $handler->display->display_options['sorts']['main_index_created']['order'] = 'DESC';
+  /* Sortierkriterien: Main Index: Ordinal date for search results (indexed) */
+  $handler->display->display_options['sorts']['main_index_field_search_sort_date']['id'] = 'main_index_field_search_sort_date';
+  $handler->display->display_options['sorts']['main_index_field_search_sort_date']['table'] = 'search_api_multi';
+  $handler->display->display_options['sorts']['main_index_field_search_sort_date']['field'] = 'main_index_field_search_sort_date';
+  $handler->display->display_options['sorts']['main_index_field_search_sort_date']['order'] = 'DESC';
   /* Filterkriterium: Suche: Fulltext search */
   $handler->display->display_options['filters']['search_api_multi_fulltext']['id'] = 'search_api_multi_fulltext';
   $handler->display->display_options['filters']['search_api_multi_fulltext']['table'] = 'search_api_multi';

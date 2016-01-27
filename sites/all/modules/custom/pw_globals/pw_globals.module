@@ -59,20 +59,28 @@ function _pw_is_profile_consultable($user=FALSE) {
   if (!isset($profile_consultable)) {
     $profile_consultable = FALSE;
     if(!isset($user->field_user_question_form_closed) || empty($user->field_user_question_form_closed)){
+
       if(_pw_is_parliament_active()){
         if(_pw_user_has_role($user, 'Candidate')){
           $parliament = _pw_get_current_parliament_term();
           if(!$parliament){
-            return $profile_consultable;
+            return FALSE;
           }
-          $date_election = $parliament->field_parliament_election[LANGUAGE_NONE][0]['value'];
+          $date_election = field_get_items('taxonomy_term', $parliament, 'field_parliament_election');
           if(empty($date_election)){
-            return $profile_consultable;
+            return FALSE;
           }
-          $day_before_election = strtotime($date_election) - 6*60*60;
-          if(time() > $day_before_election){
-            return $profile_consultable;
+          $timestamp_day_before_election = strtotime($date_election[0]['value']) - 6*60*60;
+          if(time() > $timestamp_day_before_election){
+            return FALSE;
           }
+        }
+
+        // joined and retired date
+        $date_joined = field_get_items('user', $user, 'field_user_joined');
+        $date_retired = field_get_items('user', $user, 'field_user_retired');
+        if(!empty($date_joined[0]['value']) && $date_joined[0]['value'] > date('Y-m-d') || !empty($date_retired[0]['value']) && $date_retired[0]['value'] <= date('Y-m-d 00:00:00')){
+          return FALSE;
         }
         $profile_consultable = TRUE;
       }
@@ -321,6 +329,47 @@ function _pw_get_fullname($user){
     $first_name = field_get_items('user', $user, 'field_user_fname');
     $last_name = field_get_items('user', $user, 'field_user_lname');
     return trim($title[0]['value'].' '.$first_name[0]['value'].' '.$last_name[0]['value']);
+  }
+}
+
+
+/**
+ * Custom: Helper to load only actual profiles from user archive cache
+ * @param SelectQuery $query
+ *   query object by reference
+ */
+function _pw_uac_add_conditions(&$query, $conditions = array()){
+  foreach($query->getTables() as $index => $table){
+    if($table['table'] == 'user_archive_cache'){
+      $alias_uac = $index;
+    }
+  }
+
+  // table was not joined or conditions not set
+  if(!isset($alias_uac) || empty($conditions) || !is_array($conditions)){
+    return FALSE;
+  }
+
+  // condition date
+  if(array_key_exists('date', $conditions) && !empty($conditions['date'])){
+    $or_user_joined = db_or();
+    $or_user_joined->condition($alias_uac.'.user_joined', $conditions['date'], '<');
+    $or_user_joined->condition($alias_uac.'.user_joined', NULL);
+    $query->condition($or_user_joined);
+    $or_user_retired = db_or();
+    $or_user_retired->condition($alias_uac.'.user_retired', $conditions['date'], '>');
+    $or_user_retired->condition($alias_uac.'.user_retired', NULL);
+    $query->condition($or_user_retired);
+  }
+
+  // condition roles
+  if(array_key_exists('roles', $conditions)){
+    $query->condition($alias_uac.'.user_role', $conditions['roles']);
+  }
+
+  // condition parliament
+  if(array_key_exists('parliament', $conditions)){
+    $query->condition($alias_uac.'.parliament_name', $conditions['parliament']);
   }
 }
 

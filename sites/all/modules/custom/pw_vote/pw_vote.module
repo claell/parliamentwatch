@@ -734,3 +734,87 @@ function pw_vote_views_query_alter(&$view, &$query) {
     #$query->add_where(1,'ds_field_vote_node', $node_id, 'LIKE');
   }
 }
+
+/**
+ * Find and mark votes that deviate from the fractions majority opinion.
+ * @param $nid: Node ID of poll or petition.
+ */
+function pw_vote_mark_deviant_votes($nid) {
+  // Load poll/petition node
+  $p_node = node_load($nid);
+  if (!($p_node->type == "poll" || $p_node->type == "pw_petition")) {
+    return;
+  }
+  $parliament = taxonomy_term_load($p_node->field_parliament['und'][0]['tid'])->name;
+
+  // Get all users of that parliament at the time of the poll
+  $query = db_select('user_archive_cache', 'uac');
+  $query ->fields('uac', array('uid', 'fraction_name'))
+         ->isNotNull('fraction_name');
+  $date = null;
+  if ($p_node->type == "poll"){
+    $date = $p_node->field_poll_date['und'][0]['value'];
+  }
+  elseif ($p_node->type == "pw_petition") {
+    $date = $p_node->field_petition_end_date['und'][0]['value'];
+  }
+  _pw_uac_add_conditions($query, array(
+      'parliament' => $parliament,
+      'roles' => 'deputy',
+      'date' => date($date),
+    )
+  );
+  $uac_result = $query->execute()->fetchAll();
+
+  // Generate array with user/fraction/vote information
+  foreach($uac_result as $key => $user) {
+    $efq = new EntityFieldQuery();
+    $efq->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle','vote')
+        ->fieldCondition('field_vote_user', 'target_id', $user->uid, '=')
+        ->fieldCondition('field_vote_node', 'target_id', $nid, '=');
+    $votes = $efq->execute();
+    if (empty($votes)) {
+      echo "";
+      unset($uac_result[$key]);
+      continue;
+    }
+    $user->vote_id = (String) array_keys($votes['node'])[0];
+    $user->vote_voice_tid = node_load($user->vote_id)->field_vote['und'][0]['tid'];
+  }
+
+  // Count votes for each fraction
+  $vote_sheet = array();
+  foreach($uac_result as $key => $user) {
+    if (!$vote_sheet[$user->fraction_name]){
+      $vote_sheet[$user->fraction_name] = array('19667' => 0, '19668' => 0, '19669' => 0);
+    }
+    if (in_array($user->vote_voice_tid,array_keys($vote_sheet[$user->fraction_name]))){
+      $vote_sheet[$user->fraction_name][$user->vote_voice_tid]++;
+    }
+  }
+
+  // Remove majority votes from vote sheet
+  foreach($vote_sheet as $vs_fraction => &$values){
+    $max = max($values);
+    foreach ($values as $key => $value){
+      if ($value == $max) {
+        unset($values[$key]);
+      }
+    }
+  }
+  // Mark the votes still left in the sheet
+  foreach($uac_result as $uac_row){
+      $values = $vote_sheet[$uac_row->fraction_name];
+      // Load current vote node
+      $vote_to_mark = node_load($uac_row->vote_id);
+      if (in_array($uac_row->vote_voice_tid,array_keys($values))){
+        // Mark vote as deviant
+        $vote_to_mark->field_deviant_vote['und'][0]['value'] = 1;
+      }
+      else {
+        $vote_to_mark->field_deviant_vote['und'][0]['value'] = 0;
+      }
+      node_save($vote_to_mark);
+  }
+}

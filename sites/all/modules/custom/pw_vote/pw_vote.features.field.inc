@@ -157,6 +157,92 @@ function pw_vote_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-vote-field_deviant_vote'.
+  $fields['node-vote-field_deviant_vote'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_deviant_vote',
+      'field_permissions' => array(
+        'type' => '2',
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => 'no',
+          1 => 'yes',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
+    ),
+    'field_instance' => array(
+      'bundle' => 'vote',
+      'default_value' => array(
+        0 => array(
+          'value' => 0,
+        ),
+      ),
+      'deleted' => '0',
+      'description' => 'Marks if a vote is deviant from the majority of the fraction.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(
+            'linked_field' => array(
+              'advanced' => array(
+                'class' => '',
+                'rel' => '',
+                'target' => '',
+                'text' => '',
+                'title' => '',
+              ),
+              'destination' => '',
+              'linked' => 0,
+            ),
+          ),
+          'type' => 'list_default',
+          'weight' => 6,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'ds_extras_field_template' => '',
+      'entity_type' => 'node',
+      'field_name' => 'field_deviant_vote',
+      'label' => 'Deviant Vote',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+          'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        ),
+        'type' => 'options_onoff',
+        'weight' => '12',
+      ),
+    ),
+  );
+
   // Exported field: 'node-vote-field_parliament'.
   $fields['node-vote-field_parliament'] = array(
     'field_config' => array(
@@ -731,7 +817,9 @@ function pw_vote_field_default_fields() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Argumentation');
+  t('Deviant Vote');
   t('Label');
+  t('Marks if a vote is deviant from the majority of the fraction.');
   t('Node Reference');
   t('Parliament');
   t('Politician Reference');

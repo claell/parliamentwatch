@@ -42,16 +42,18 @@ function pw_api_petitions($parliament) {
       $votes['petition_'.$target_node_id] = array();
       $votes['petition_'.$target_node_id]['title'] = $node->title;
       $votes['petition_'.$target_node_id]['uuid'] = $node->uuid;
-      $date = field_get_items('node', $node, 'field_petition_end_date');
-      $date = substr($date[0]['value'], 0, 10);
-      $votes['petition_'.$target_node_id]['date'] = $date;
+      $date_field = field_get_items('node', $node, 'field_petition_end_date');
+      $date_petition = substr($date_field[0]['value'], 0, 10);
+      $votes['petition_'.$target_node_id]['date'] = $date_petition;
       $status = field_get_items('node', $node, 'field_petition_status');
       $votes['petition_'.$target_node_id]['status'] = $status[0]['value'];
       $votes['petition_'.$target_node_id]['url'] = url('node/'.$node->nid, array('absolute' => TRUE));
-
-      // call subroutine to add votes
-      $votes['petition_'.$target_node_id]['votes'] = pw_api_add_votes($parliament_term, $target_node_id);
-      //@TODO: Categories, Tags
+      if($status[0]['value'] == 'passed_parliament'){
+        $votes['petition_'.$target_node_id]['votes'] = pw_api_add_votes($parliament_term, $target_node_id, $poll_date);
+      }
+      else{
+        $votes['petition_'.$target_node_id]['votes'] = '';
+      }
     }
   }
 
@@ -94,20 +96,19 @@ function pw_api_polls($parliament) {
       $votes['poll_'.$target_node_id] = array();
       $votes['poll_'.$target_node_id]['title'] = $node->title;
       $votes['poll_'.$target_node_id]['uuid'] = $node->uuid;
-      $date = field_get_items('node', $node, 'field_poll_date');
-      $date = substr($date[0]['value'], 0, 10);
-      $votes['poll_'.$target_node_id]['date'] = $date;
+      $date_field = field_get_items('node', $node, 'field_poll_date');
+      $poll_date = substr($date_field[0]['value'], 0, 10);
+      $votes['poll_'.$target_node_id]['date'] = $poll_date;
       $status = field_get_items('node', $node, 'field_voted');
       if($status[0]['value'] == '1'){
         $votes['poll_'.$target_node_id]['status'] = 'abgestimmt';
+        $votes['poll_'.$target_node_id]['votes'] = pw_api_add_votes($parliament_term, $target_node_id, $poll_date);
       }
       else{
-        $votes['poll_'.$target_node_id]['status'] = $date > date('Y-m-d')?'anstehend':'unbekannt';
+        $votes['poll_'.$target_node_id]['status'] = $poll_date > date('Y-m-d')?'anstehend':'unbekannt';
+        $votes['poll_'.$target_node_id]['votes'] = '';
       }
       $votes['poll_'.$target_node_id]['url'] = url('node/'.$node->nid, array('absolute' => TRUE));
-
-      // call subroutine to add votes
-      $votes['poll_'.$target_node_id]['votes'] = pw_api_add_votes($parliament_term, $target_node_id);
       //@TODO: Categories, Tags
     }
   }
@@ -115,7 +116,7 @@ function pw_api_polls($parliament) {
   return array('polls' => $votes);
 }
 
-function pw_api_add_votes($parliament_term, $target_node_id){
+function pw_api_add_votes($parliament_term, $target_node_id, $vote_date){
 
   // return array
   $votes = array();
@@ -144,11 +145,16 @@ function pw_api_add_votes($parliament_term, $target_node_id){
     // join target user to retrieve user data
     $query->join('field_data_field_vote_user', 'vote_user', "n.nid = vote_user.entity_id AND vote_user.bundle = 'vote'");
     $query->join('user_archive_cache', 'uac', "vote_user.field_vote_user_target_id = uac.uid");
-    $query->condition('uac.parliament_name', $parliament_term->name);
-    $query->condition('uac.user_role', 'deputy');
-    $query->groupBy('uac.uid');
     $query->addField('uac', 'vid');
     $query->addField('uac', 'fraction_name', 'fraction');
+    _pw_uac_add_conditions($query, array(
+      'parliament' => $parliament_term->name,
+      'roles' => 'deputy',
+      'date' => $vote_date,
+      )
+    );
+
+    //$query->groupBy('uac.uid');
 
     // join users to retrieve uuid
     $query->join('users', 'u', "vote_user.field_vote_user_target_id = u.uid");
@@ -182,8 +188,6 @@ function pw_api_add_votes($parliament_term, $target_node_id){
 
     // get results
     $result = $query->execute();
-
-    #dd($result->rowCount());
 
     // fetch and write results
     while($record = $result->fetchObject()){

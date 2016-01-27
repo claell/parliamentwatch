@@ -47,6 +47,11 @@ function pw_question_form_form_alter(&$form, &$form_state, $form_id) {
     if(!empty($field_closed_by_reason)){
       $body_markup = '<div class="pw-messages warning">'.$field_closed_by_reason[0]['value'].'</div>';
     }
+    elseif(!_pw_is_profile_consultable()){
+      $body_markup = '<div class="pw-messages warning">Die Fragefunktion ist diesem Profil wurde geschlossen.</div>';
+    }
+
+    /*
 
     // check if user is candidate but election date was reached
     if(empty($body_markup) && _pw_user_has_role($user, 'Candidate') && !empty($date_election)){
@@ -59,7 +64,7 @@ function pw_question_form_form_alter(&$form, &$form_state, $form_id) {
       }
     }
 
-    // check valid dates in case there was no message set before
+    // check parliament valid dates in case there was no message set before
     if(empty($body_markup)){
 
       // check parliament is within valid dates
@@ -97,6 +102,13 @@ function pw_question_form_form_alter(&$form, &$form_state, $form_id) {
         }
       }
     }
+
+    // check user valid dates in case there was no message set before
+    if(empty($body_markup)){
+      $body_markup = '<div class="pw-messages warning">Die Fragefunktion ist diesem Profil wurde am :date_end geschlossen.</div>';
+    }
+
+    */
 
     // show message
     $form['#node']->content['body'][0]['#markup'] = $body_markup;

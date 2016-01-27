@@ -22,3 +22,50 @@ function pw_search_api_block_view_alter(&$data, $block){
   	}
   }
 }
+
+/**
+ * Implements hook_node_presave().
+ * Sets sort date field depending on node type
+ */
+function pw_search_api_node_presave($node) {
+  switch ($node->type) {
+    case 'poll':
+      $node->field_search_sort_date['und'][0]['value']  = $node->field_poll_date['und'][0]['value'];
+      $node->field_search_sort_date['und'][0]['value2'] = $node->field_search_sort_date['und'][0]['value'];
+      break;
+    case 'blogpost':
+      $node->field_search_sort_date['und'][0]['value']  = date("Y-m-d H:i:s",$node->created);
+      $node->field_search_sort_date['und'][0]['value2'] = $node->field_search_sort_date['und'][0]['value'];
+      break;
+    case 'dialogue':
+      $node->field_search_sort_date['und'][0]['value']  = date("Y-m-d H:i:s",$node->created);
+      $node->field_search_sort_date['und'][0]['value2'] = $node->field_search_sort_date['und'][0]['value'];
+      break;
+    case 'page':
+      $node->field_search_sort_date['und'][0]['value']  = date("Y-m-d H:i:s",$node->created);
+      $node->field_search_sort_date['und'][0]['value2'] = $node->field_search_sort_date['und'][0]['value'];
+      break;
+    case 'pw_petition':
+      $node->field_search_sort_date['und'][0]['value']  = date("Y-m-d H:i:s",$node->changed);
+      $node->field_search_sort_date['und'][0]['value2'] = $node->field_search_sort_date['und'][0]['value'];
+      break;
+  }
+}
+
+/**
+ * Helper function to initialize the sort date for all relevant nodes,
+ */
+function pw_search_api_set_sort_date() {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', ['poll','blogpost','page','dialogue','pw_petition'], 'IN');//,'blogpost','page','dialogue','pw_petition'
+  $nodes = $query->execute();
+  $i = 1;
+  $ct = count($nodes['node']);
+  foreach ($nodes['node'] as $node){
+    print('Updated Node '.$node->nid."\t(".$i.' of '.$ct.')'.PHP_EOL);
+    $i++;
+    $current_node = node_load($node->nid);
+    node_save($current_node);
+  }
+}
